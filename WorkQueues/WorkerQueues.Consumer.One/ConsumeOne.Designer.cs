@@ -1,6 +1,6 @@
-﻿namespace Consum.Service
+﻿namespace WorkerQueues.Consumer.One
 {
-    partial class Consumer
+    partial class ConsumerOne
     {
         /// <summary> 
         /// Required designer variable.
@@ -33,9 +33,9 @@
             // 
             // eventLog1
             // 
-            this.eventLog1.Log = "BasicConsumerLog";
+            this.eventLog1.Log = "WorkerQueueConsumerOneLog";
             // 
-            // Consumer
+            // ConsumerOne
             // 
             this.ServiceName = "Service1";
             ((System.ComponentModel.ISupportInitialize)(this.eventLog1)).EndInit();

@@ -1,10 +1,11 @@
 ﻿using System;
 using System.Diagnostics;
 using System.Text;
+using System.Threading;
 using RabbitMQ.Client;
 using RabbitMQ.Client.Events;
 
-namespace Consum.Service
+namespace WorkerQueues.Consumer.One
 {
     public class BusService : IDisposable
     {
@@ -54,6 +55,9 @@ namespace Consum.Service
             var body = message.Body.ToArray();
             var stringMessage = Encoding.UTF8.GetString(body);
             _eventLog.WriteEntry($" [x] Received {stringMessage}");
+            var dots = stringMessage.Split('.').Length - 1;
+            Thread.Sleep(dots * 1000);
+            _eventLog.WriteEntry(" [x] Done");
         }
 
         public void Dispose()

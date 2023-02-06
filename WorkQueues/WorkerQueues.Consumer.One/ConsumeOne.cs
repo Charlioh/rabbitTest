@@ -1,22 +1,20 @@
 ﻿using System.Diagnostics;
 using System.Runtime.InteropServices;
 using System.ServiceProcess;
-using System.Threading;
 using System.Timers;
-using Timer = System.Timers.Timer;
 
-namespace Consum.Service
+namespace WorkerQueues.Consumer.One
 {
-    public partial class Consumer : ServiceBase
+    public partial class ConsumerOne : ServiceBase
     {
         private int _eventId = 1;
         private readonly BusService _busService;
 
-        public Consumer()
+        public ConsumerOne()
         {
             InitializeComponent();
             var eventSourceName = "ConsumerSource";
-            var logName = "TrueConsumerLog";
+            var logName = "WorkingQueueConsumerOneLog";
 
             eventLog1 = new EventLog();
             if (!EventLog.SourceExists(eventSourceName)) EventLog.CreateEventSource(eventSourceName, logName);
@@ -38,6 +36,7 @@ namespace Consum.Service
             SetServiceStatus(ServiceHandle, ref serviceStatus);
             eventLog1.WriteEntry("In OnStart");
             _busService.Listen();
+            
             // Set up a timer that triggers every minute.
             var timer = new Timer();
             timer.Interval = 10000;
@@ -71,7 +70,6 @@ namespace Consum.Service
                 dwWaitHint = 100000
             };
             SetServiceStatus(ServiceHandle, ref serviceStatus);
-
             _busService.Dispose();
             eventLog1.WriteEntry("In OnPause");
 
@@ -79,7 +77,7 @@ namespace Consum.Service
             SetServiceStatus(ServiceHandle, ref serviceStatus);
 
         }
-
+        
         protected override void OnContinue()
         {
             var serviceStatus = new ServiceStatus
