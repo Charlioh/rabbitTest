@@ -1,4 +1,4 @@
-﻿namespace WorkerQueues.Consumer.One
+﻿namespace WorkerQueues.Consumer.Two
 {
     partial class ProjectInstaller
     {
@@ -39,9 +39,9 @@
             // 
             // serviceInstaller1
             // 
-            this.serviceInstaller1.Description = "Worker queue consumer one service";
-            this.serviceInstaller1.DisplayName = "WorkerQueueConsumeOne";
-            this.serviceInstaller1.ServiceName = "ConsumerOne";
+            this.serviceInstaller1.Description = "Worker queue consumer two service";
+            this.serviceInstaller1.DisplayName = "WorkerQueueConsumeTwo";
+            this.serviceInstaller1.ServiceName = "ConsumerTwo";
             // 
             // ProjectInstaller
             // 

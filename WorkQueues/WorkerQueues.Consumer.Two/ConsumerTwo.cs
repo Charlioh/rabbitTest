@@ -1,4 +1,5 @@
-﻿using System.Diagnostics;
+﻿using System;
+using System.IO;
 using System.Runtime.InteropServices;
 using System.ServiceProcess;
 using System.Timers;
@@ -7,22 +8,12 @@ namespace WorkerQueues.Consumer.Two
 {
     partial class ConsumerTwo : ServiceBase
     {
-        private int _eventId = 1;
         private readonly BusService _busService;
-
+        private readonly string _logPath = "c:/WorkersLog/WorkerTwoLog";
         public ConsumerTwo()
         {
             InitializeComponent();
-            var eventSourceName = "ConsumerSource";
-            var logName = "WorkingQueueConsumerOneLog";
-
-            eventLog1 = new EventLog();
-            if (!EventLog.SourceExists(eventSourceName)) EventLog.CreateEventSource(eventSourceName, logName);
-
-            _busService = new BusService(eventLog1);
-
-            eventLog1.Source = eventSourceName;
-            eventLog1.Log = logName;
+            _busService = new BusService(_logPath);
         }
 
         protected override void OnStart(string[] args)
@@ -34,7 +25,8 @@ namespace WorkerQueues.Consumer.Two
                 dwWaitHint = 100000
             };
             SetServiceStatus(ServiceHandle, ref serviceStatus);
-            eventLog1.WriteEntry("In OnStart");
+            File.AppendAllText(_logPath, "In OnStart");
+
             _busService.Listen();
 
             // Set up a timer that triggers every minute.
@@ -56,7 +48,8 @@ namespace WorkerQueues.Consumer.Two
             };
             SetServiceStatus(ServiceHandle, ref serviceStatus);
             _busService.Dispose();
-            eventLog1.WriteEntry("In OnStop");
+            File.AppendAllText(_logPath, " - In OnStop");
+
 
             serviceStatus.dwCurrentState = ServiceState.SERVICE_STOPPED;
             SetServiceStatus(ServiceHandle, ref serviceStatus);
@@ -71,7 +64,7 @@ namespace WorkerQueues.Consumer.Two
             };
             SetServiceStatus(ServiceHandle, ref serviceStatus);
             _busService.Dispose();
-            eventLog1.WriteEntry("In OnPause");
+            File.AppendAllText(_logPath, " - In OnPause");
 
             serviceStatus.dwCurrentState = ServiceState.SERVICE_PAUSED;
             SetServiceStatus(ServiceHandle, ref serviceStatus);
@@ -86,9 +79,9 @@ namespace WorkerQueues.Consumer.Two
                 dwWaitHint = 100000
             };
             SetServiceStatus(ServiceHandle, ref serviceStatus);
-            _busService.Init(eventLog1);
+            _busService.Init();
             _busService.Listen();
-            eventLog1.WriteEntry("In OnContinue");
+            File.AppendAllText(_logPath, " - In OnContinue");
 
             serviceStatus.dwCurrentState = ServiceState.SERVICE_RUNNING;
             SetServiceStatus(ServiceHandle, ref serviceStatus);
@@ -96,7 +89,8 @@ namespace WorkerQueues.Consumer.Two
 
         public void OnTimer(object sender, ElapsedEventArgs args)
         {
-            eventLog1.WriteEntry("Monitoring the System", EventLogEntryType.Information, _eventId++);
+            File.AppendAllText(_logPath, " - Monitoring the System");
+
         }
 
         public enum ServiceState

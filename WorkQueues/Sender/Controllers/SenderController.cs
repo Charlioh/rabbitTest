@@ -14,8 +14,8 @@ namespace Sender.Controllers
         }
 
         [Route("Sender/SendTest")]
-        [HttpPost]
-        public IHttpActionResult SendTest([FromUri]string[] texts)
+        [HttpGet]
+        public IHttpActionResult SendTest([FromUri]string text1, [FromUri]string text2)
         {
             var factory = new ConnectionFactory { HostName = "localhost" };
             using (var connection = factory.CreateConnection())
@@ -28,7 +28,7 @@ namespace Sender.Controllers
                         autoDelete: false,
                         arguments: null);
 
-                    var message = GetMessage(texts);
+                    var message = GetMessage(new []{text1, text2});
                     var body = Encoding.UTF8.GetBytes(message);
 
                     channel.BasicPublish(exchange: string.Empty,

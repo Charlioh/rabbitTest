@@ -1,9 +1,9 @@
-﻿using System;
-using System.Diagnostics;
+﻿using RabbitMQ.Client;
+using RabbitMQ.Client.Events;
+using System;
+using System.IO;
 using System.Text;
 using System.Threading;
-using RabbitMQ.Client;
-using RabbitMQ.Client.Events;
 
 namespace WorkerQueues.Consumer.Two
 {
@@ -12,16 +12,16 @@ namespace WorkerQueues.Consumer.Two
         private readonly ConnectionFactory _factory = new ConnectionFactory { HostName = "localhost" };
         private IConnection _connection;
         private IModel _channel;
-        private EventLog _eventLog;
+        private readonly string _logPath;
 
-        public BusService(EventLog eventLog)
+        public BusService(string logPath)
         {
-            Init(eventLog);
+            _logPath = logPath;
+            Init();
         }
 
-        public void Init(EventLog eventLog)
+        public void Init()
         {
-            _eventLog = eventLog;
             _connection = _factory.CreateConnection();
             _channel = _connection.CreateModel();
         }
@@ -36,7 +36,7 @@ namespace WorkerQueues.Consumer.Two
                 autoDelete: false,
                 arguments: null);
 
-            _eventLog.WriteEntry(" [*] Waiting for messages.");
+            File.AppendAllText(_logPath, " [*] Waiting for messages.");
             var consumer = new EventingBasicConsumer(channel);
             consumer.Received += (model, ea) =>
             {
@@ -46,7 +46,7 @@ namespace WorkerQueues.Consumer.Two
                 autoAck: true,
                 consumer: consumer);
 
-            _eventLog.WriteEntry("Consumer is running");
+            File.AppendAllText(_logPath, "Consumer is running");
             Console.ReadLine();
         }
 
@@ -54,10 +54,10 @@ namespace WorkerQueues.Consumer.Two
         {
             var body = message.Body.ToArray();
             var stringMessage = Encoding.UTF8.GetString(body);
-            _eventLog.WriteEntry($" [x] Received {stringMessage}");
+            File.AppendAllText(_logPath, $" [x] Received {stringMessage}");
             var dots = stringMessage.Split('.').Length - 1;
             Thread.Sleep(dots * 1000);
-            _eventLog.WriteEntry(" [x] Done");
+            File.AppendAllText(_logPath, " [x] Done");
         }
 
         public void Dispose()
@@ -66,7 +66,7 @@ namespace WorkerQueues.Consumer.Two
             _connection.Close();
             _channel.Dispose();
             _connection.Dispose();
-            _eventLog.WriteEntry("Queue consumption stopped");
+            File.AppendAllText(_logPath, "Queue consumption stopped");
         }
     }
 }
