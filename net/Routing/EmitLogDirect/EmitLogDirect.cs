@@ -5,17 +5,17 @@ var factory = new ConnectionFactory { HostName = "localhost" };
 using var connection = factory.CreateConnection();
 using var channel = connection.CreateModel();
 channel.ExchangeDeclare("direct_logs", ExchangeType.Direct);
-
-var message = GetMessage(args);
+var severity = (args.Length > 0) ? args[0] : "info";
+var message = (args.Length > 1)
+    ? string.Join(" ", args.Skip(1).ToArray())
+    : "Hello World!";
 var body = Encoding.UTF8.GetBytes(message);
 channel.BasicPublish(exchange: "direct_logs",
-    routingKey: severity,
-    basicProperties: null,
-    body: body);
+                        routingKey: severity,
+                        basicProperties: null,
+                        body: body);
 
-Console.WriteLine(" [x] Sent {0}", message);
+Console.WriteLine($" [x] Sent '{severity}':'{message}'");
 
 Console.WriteLine(" Press [enter] to exit.");
 Console.ReadLine();
-
-static string GetMessage(string[] args) => (args.Length > 0 ? string.Join(" ", args) : "Hello World!");
