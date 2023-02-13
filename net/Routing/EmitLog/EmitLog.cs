@@ -4,12 +4,12 @@ using RabbitMQ.Client;
 var factory = new ConnectionFactory { HostName = "localhost" };
 using var connection = factory.CreateConnection();
 using var channel = connection.CreateModel();
-channel.ExchangeDeclare("logs", ExchangeType.Fanout);
+channel.ExchangeDeclare("direct_logs", ExchangeType.Direct);
 
 var message = GetMessage(args);
 var body = Encoding.UTF8.GetBytes(message);
-channel.BasicPublish(exchange: "logs",
-    routingKey: string.Empty,
+channel.BasicPublish(exchange: "direct_logs",
+    routingKey: severity,
     basicProperties: null,
     body: body);
 
